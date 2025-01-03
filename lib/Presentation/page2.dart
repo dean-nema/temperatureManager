@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:temp_manager/Domain/Model/temp_record.dart';
@@ -29,8 +31,12 @@ class _RecordingsState extends State<Recordings> {
 
     final mainWidth = width - 60;
 
-    Future<void> selectDate(BuildContext context,
-        List<TempRecord> records) async {
+    final output = Directory
+        .current; // Use getApplicationDocumentsDirectory() for persistent storage
+    final file = File("${output.path}/Temperature Records.pdf");
+
+    Future<void> selectDate(
+        BuildContext context, List<TempRecord> records) async {
       final DateTime? picked = await showDatePicker(
         context: context,
         initialDate: _selectedDate ?? DateTime.now(),
@@ -42,15 +48,14 @@ class _RecordingsState extends State<Recordings> {
           _selectedDateRange = null;
           _selectedDate = picked;
           _datePicked = true;
-         rows.clear();
-      rows.addAll(dateFilter(records, _selectedDate));
-          
+          rows.clear();
+          rows.addAll(dateFilter(records, _selectedDate));
         });
       }
     }
 
-    Future<void> pickDateRange(BuildContext context,
-        List<TempRecord> records) async {
+    Future<void> pickDateRange(
+        BuildContext context, List<TempRecord> records) async {
       final DateTimeRange? picked = await showDateRangePicker(
         context: context,
         initialDateRange: _selectedDateRange ??
@@ -67,14 +72,26 @@ class _RecordingsState extends State<Recordings> {
           _selectedDateRange = picked;
           _datePicked = true;
           rows.clear();
-      rows.addAll(dateRangeFilter(records, _selectedDateRange));
+          rows.addAll(dateRangeFilter(records, _selectedDateRange));
         });
       }
     }
 
-   
+    Widget doneSavingPDf = AlertDialog(
+      title: const Text('Pdf Saved'),
+      content: Text('Temperature Records.pdf is saved on the path: $file '),
+      actions: [
+        TextButton(
+          onPressed: () {
+            Navigator.of(context).pop(); // Closes the pop-up
+          },
+          child: const Text('Close'),
+        ),
+      ],
+    );
 
     Future<void> pdfButton() async {
+      if (rows == null || rows.isEmpty) {}
       //loading screen
 
       showDialog(
@@ -91,8 +108,15 @@ class _RecordingsState extends State<Recordings> {
         DateTime? date = rows[0].date;
         await generatePdf(rows, date, null);
       }
+
       //remove loading screen
       Navigator.of(context).pop();
+
+      showDialog(
+          context: context,
+          builder: (context) {
+            return doneSavingPDf;
+          });
     }
 
     return Scaffold(
@@ -124,7 +148,7 @@ class _RecordingsState extends State<Recordings> {
                       children: [
                         ElevatedButton(
                             onPressed: () {
-                              pickDateRange(context,records);
+                              pickDateRange(context, records);
                             },
                             child: SizedBox(
                               width: 220,
@@ -162,6 +186,9 @@ class _RecordingsState extends State<Recordings> {
                             )),
                         ElevatedButton(
                             onPressed: () {
+                              if (rows == null || rows.isEmpty) {
+                                rows.addAll(records);
+                              }
                               pdfButton();
                             },
                             child: SizedBox(
