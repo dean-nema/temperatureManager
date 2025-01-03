@@ -1,28 +1,68 @@
-build-windows:
-  runs-on: windows-latest
-  steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
+name: Build Flutter App
 
-    - name: Set up Flutter
-      uses: subosito/flutter-action@v2
-      with:
-        flutter-version: '3.22.3'
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
 
-    - name: Verify Flutter Version
-      run: flutter --version
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-    - name: Install dependencies
-      run: flutter pub get
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.22.3'
 
-    - name: Build for Windows
-      run: flutter build windows
+      - name: Verify Flutter Version
+        run: flutter --version
 
-    - name: List Build Directory
-      run: dir build/windows/x64/runner/Release
+      - name: Install dependencies
+        run: flutter pub get
 
-    - name: Upload Windows Build Artifact
-      uses: actions/upload-artifact@v3
-      with:
-        name: windows-build
-        path: build/windows/x64/runner/Release/
+      - name: Build for Windows
+        run: flutter build windows
+
+      - name: List Build Directory
+        run: dir build/windows/x64/runner/Release
+
+      - name: Upload Windows Build Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: windows-build
+          path: build/windows/x64/runner/Release/
+
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.22.3'
+
+      - name: Verify Flutter Version
+        run: flutter --version
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Build for Linux
+        run: flutter build linux
+
+      - name: List Build Directory
+        run: ls build/linux/x64/runner/Release
+
+      - name: Upload Linux Build Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: linux-build
+          path: build/linux/x64/runner/Release/
