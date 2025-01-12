@@ -15,9 +15,9 @@ import 'Data/Repository/isar_temp_record_repo.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
-    setWindowMinSize(const Size(700, 970)); // Minimum size
-  }
+  // if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
+  //   setWindowMinSize(const Size(700, 970)); // Minimum size
+  // }
 
   // Get directory path for storing data
   final dir = await getApplicationCacheDirectory();

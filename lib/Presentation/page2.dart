@@ -100,17 +100,36 @@ class _RecordingsState extends State<Recordings> {
             return const Center(child: CircularProgressIndicator());
           });
 
-      if (_selectedDate != null) {
-        await generatePdf(rows, _selectedDate, null);
-      } else if (_selectedDateRange != null) {
-        await generatePdf(rows, null, _selectedDateRange);
-      } else {
-        DateTime? date = rows[0].date;
-        await generatePdf(rows, date, null);
+      try {
+        if (_selectedDate != null) {
+          await generatePdf(rows, _selectedDate, null);
+        } else if (_selectedDateRange != null) {
+          await generatePdf(rows, null, _selectedDateRange);
+        } else {
+          DateTime? date = rows[0].date;
+          await generatePdf(rows, date, null);
+        }
+      } catch (e) {
+        Navigator.of(context).pop(); // Dismiss the loading screen
+        showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              title: const Text('Error'),
+              content: Text('An error occurred: $e'),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: const Text('OK'),
+                ),
+              ],
+            );
+          },
+        );
+        return;
+      } finally {
+        Navigator.of(context).pop(); // Ensure the loading dialog is dismissed
       }
-
-      //remove loading screen
-      Navigator.of(context).pop();
 
       showDialog(
           context: context,
